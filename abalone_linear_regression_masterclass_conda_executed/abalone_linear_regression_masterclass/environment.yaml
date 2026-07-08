@@ -1,0 +1,31 @@
+name: abalone-linear-regression
+channels:
+  - conda-forge
+dependencies:
+  - python=3.13.5
+  - pip=25.1.1
+  - pip:
+      - numpy==2.3.5
+      - pandas==2.2.3
+      - matplotlib==3.10.8
+      - matplotlib-inline==0.2.2
+      - scipy==1.17.0
+      - statsmodels==0.14.6
+      - scikit-learn==1.8.0
+      - ipython==9.14.0
+      - ipykernel==7.2.0
+      - jupyterlab==4.5.3
+      - notebook==7.5.3
+      - nbclient==0.10.4
+      - nbformat==5.10.4
+      - nbconvert==7.17.1
+      - jupyter-client==8.8.0
+      - jupyter-core==5.9.1
+      - traitlets==5.15.0
+      - pyyaml==6.0.3
+variables:
+  PYTHONHASHSEED: "42"
+  OMP_NUM_THREADS: "1"
+  MKL_NUM_THREADS: "1"
+  OPENBLAS_NUM_THREADS: "1"
+  NUMEXPR_NUM_THREADS: "1"

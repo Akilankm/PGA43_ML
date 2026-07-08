@@ -1,0 +1,5 @@
+.ipynb_checkpoints/
+.jupyter_runtime/
+__pycache__/
+*.pyc
+abalone_linear_regression_masterclass_rerun.ipynb
