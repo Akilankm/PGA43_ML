@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "checks": {
+    "executed_notebook_present": true,
+    "clean_notebook_present": true,
+    "notebook_json_valid": true,
+    "code_cells_compile": true,
+    "executed_counts_present": true,
+    "clean_counts_cleared": true,
+    "clean_outputs_cleared": true
+  },
+  "executed": {
+    "cells": 27,
+    "code_cells": 13,
+    "executed_code_cells": 13,
+    "error_outputs": 0
+  },
+  "clean": {
+    "cells": 27,
+    "code_cells": 13,
+    "executed_code_cells": 0,
+    "output_count": 0
+  }
+}
