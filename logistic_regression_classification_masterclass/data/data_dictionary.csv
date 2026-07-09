@@ -1,0 +1,18 @@
+feature,type,role,description,operational_availability
+age,numeric,predictor,Customer age,pre-contact
+job,categorical,predictor,Customer occupation group,pre-contact
+marital,categorical,predictor,Marital status,pre-contact
+education,categorical,predictor,Education level,pre-contact
+default,binary categorical,predictor,Credit default indicator,pre-contact
+balance,numeric,predictor,Average yearly account balance,pre-contact
+housing,binary categorical,predictor,Housing-loan indicator,pre-contact
+loan,binary categorical,predictor,Personal-loan indicator,pre-contact
+contact,categorical,predictor,Contact communication type,known at contact planning
+day,numeric,predictor,Day of month of contact,known at scheduling
+month,categorical,predictor,Month of contact,known at scheduling
+duration,numeric,leakage demonstration,Duration of current contact,post-contact only
+campaign,numeric,predictor,Contacts performed in current campaign,available during campaign
+pdays,numeric,predictor,Days since previous campaign contact; -1 means none,pre-contact
+previous,numeric,predictor,Number of previous campaign contacts,pre-contact
+poutcome,categorical,predictor,Outcome of previous campaign,pre-contact
+y,binary target,target,Term-deposit subscription outcome,post-outcome
