@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - .github/workflows/build-logistic-masterclass.yml
+      - .github/logistic-build-trigger.txt
   workflow_dispatch:
 
 permissions:
