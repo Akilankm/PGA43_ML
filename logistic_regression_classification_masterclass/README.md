@@ -1,12 +1,26 @@
 # Logistic Regression Classification Masterclass
 
-A fully executed, classroom-grade binary-classification package covering logistic regression with both **Statsmodels** and **scikit-learn**.
+A classroom-grade binary-classification codebase covering logistic regression with both **Statsmodels** and **scikit-learn**.
 
-## Start here
+## Materialize the complete package
 
-- `logistic_regression_classification_masterclass.ipynb` — executed notebook with all outputs and plots embedded.
-- `logistic_regression_classification_masterclass_clean.ipynb` — identical source notebook with outputs cleared for students.
-- `logistic_regression_classification_masterclass.html` — static rendered companion.
+The repository contains the complete deterministic source and a one-command materializer. After creating the environment, run:
+
+```bash
+python scripts/materialize_package.py
+```
+
+This command generates and validates all expanded deliverables directly inside this folder:
+
+- `logistic_regression_classification_masterclass.ipynb` — fully executed notebook with embedded tables and plots;
+- `logistic_regression_classification_masterclass_clean.ipynb` — clean student notebook;
+- `logistic_regression_classification_masterclass.html` — static rendered notebook;
+- `data/bank_marketing_teaching.csv` — deterministic offline teaching dataset;
+- `artifacts/final_logistic_pipeline.joblib` — fitted end-to-end prediction pipeline;
+- `artifacts/model_metrics.json` and `artifacts/selected_threshold.json`;
+- `validation_report.json` and `CHECKSUMS.sha256`.
+
+No ZIP archive is stored in the repository.
 
 ## Environment setup
 
@@ -27,24 +41,18 @@ python scripts/reexecute_notebook.py
 python scripts/verify_package.py
 ```
 
-## Package contents
+## Package structure
 
 ```text
 logistic_regression_classification_masterclass/
-├── logistic_regression_classification_masterclass.ipynb
-├── logistic_regression_classification_masterclass_clean.ipynb
-├── logistic_regression_classification_masterclass.html
+├── README.md
 ├── environment.yaml
 ├── requirements-lock.txt
 ├── data/
-│   ├── bank_marketing_teaching.csv
 │   ├── data_dictionary.csv
 │   └── DATA_SOURCE.md
-├── artifacts/
-│   ├── final_logistic_pipeline.joblib
-│   ├── selected_threshold.json
-│   └── model_metrics.json
 ├── scripts/
+│   ├── materialize_package.py
 │   ├── build_notebook.py
 │   ├── generate_teaching_data.py
 │   ├── download_official_data.py
@@ -53,7 +61,17 @@ logistic_regression_classification_masterclass/
 ├── instructor_notes.md
 ├── student_exercises.md
 ├── references.md
-└── validation_report.json
+└── generated after materialization:
+    ├── logistic_regression_classification_masterclass.ipynb
+    ├── logistic_regression_classification_masterclass_clean.ipynb
+    ├── logistic_regression_classification_masterclass.html
+    ├── CHECKSUMS.sha256
+    ├── validation_report.json
+    ├── data/bank_marketing_teaching.csv
+    └── artifacts/
+        ├── final_logistic_pipeline.joblib
+        ├── selected_threshold.json
+        └── model_metrics.json
 ```
 
 ## Analytical coverage
@@ -74,7 +92,7 @@ The notebook includes:
 
 ## Dataset statement
 
-The bundled `bank_marketing_teaching.csv` is a deterministic synthetic teaching dataset that follows the UCI Bank Marketing schema and preserves realistic mixed feature types, imbalance, nonlinear probability behavior, and a deliberate post-contact leakage variable. It is included for offline reproducibility and is **not claimed to contain the original UCI records**.
+The generated `bank_marketing_teaching.csv` is a deterministic synthetic teaching dataset that follows the UCI Bank Marketing schema and preserves realistic mixed feature types, imbalance, nonlinear probability behavior, and a deliberate post-contact leakage variable. It is included for offline reproducibility and is **not claimed to contain the original UCI records**.
 
 To use the official UCI data:
 
@@ -86,7 +104,7 @@ Then update `DATA_PATH` in the notebook to `data/bank-full.csv` and rerun. The o
 
 ## Validated result snapshot
 
-On the bundled deterministic teaching data, the untouched test set produced approximately:
+On the deterministic teaching data, the validated local execution produced approximately:
 
 - ROC-AUC: `0.785`
 - Average precision: `0.344`
