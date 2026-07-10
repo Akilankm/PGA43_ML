@@ -1,18 +1,18 @@
-feature,type,role,description,operational_availability
-age,numeric,predictor,Customer age,pre-contact
-job,categorical,predictor,Customer occupation group,pre-contact
-marital,categorical,predictor,Marital status,pre-contact
-education,categorical,predictor,Education level,pre-contact
-default,binary categorical,predictor,Credit default indicator,pre-contact
-balance,numeric,predictor,Average yearly account balance,pre-contact
-housing,binary categorical,predictor,Housing-loan indicator,pre-contact
-loan,binary categorical,predictor,Personal-loan indicator,pre-contact
-contact,categorical,predictor,Contact communication type,known at contact planning
-day,numeric,predictor,Day of month of contact,known at scheduling
-month,categorical,predictor,Month of contact,known at scheduling
-duration,numeric,leakage demonstration,Duration of current contact,post-contact only
-campaign,numeric,predictor,Contacts performed in current campaign,available during campaign
-pdays,numeric,predictor,Days since previous campaign contact; -1 means none,pre-contact
-previous,numeric,predictor,Number of previous campaign contacts,pre-contact
-poutcome,categorical,predictor,Outcome of previous campaign,pre-contact
-y,binary target,target,Term-deposit subscription outcome,post-outcome
+column,role,data_type,meaning,availability,modelling_note
+age,predictor,numeric,Customer age,Before contact,Use as a continuous predictor; inspect non-linearity
+job,predictor,categorical,Type of job,Before contact,One-hot encode with an explicit missing category
+marital,predictor,categorical,Marital status,Before contact,One-hot encode
+education,predictor,categorical,Education level,Before contact,Contains a small amount of missingness
+default,predictor,categorical,Has credit in default,Before contact,One-hot encode
+balance,predictor,numeric,Average yearly account balance,Before contact,Right-skewed; scale inside the pipeline
+housing,predictor,categorical,Has a housing loan,Before contact,One-hot encode
+loan,predictor,categorical,Has a personal loan,Before contact,One-hot encode
+contact,predictor,categorical,Contact communication type,Before contact,Contains a small amount of missingness
+day,predictor,numeric,Day of month of the contact,Before contact,Calendar variable; interpret cautiously
+month,predictor,categorical,Month of the contact,Before contact,One-hot encode
+duration,leakage,numeric,Duration of the current contact in seconds,After current contact ends,Exclude from the prospective model
+campaign,predictor,numeric,Number of contacts during this campaign,Before or during campaign,Check whether repeated contact is part of the decision policy
+pdays,predictor,numeric,Days since a previous campaign contact; -1 means none,Before contact,Use -1 as an explicit historical-state code
+previous,predictor,numeric,Number of contacts before this campaign,Before contact,Use with a count-aware transformation if appropriate
+poutcome,predictor,categorical,Outcome of a previous campaign,Before contact,Historical variable; unknown is informative but not necessarily missing at random
+y,target,categorical,Whether the customer subscribed,After campaign outcome,Map no to 0 and yes to 1

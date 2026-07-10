@@ -1,24 +1,33 @@
 {
   "status": "passed",
   "checks": {
-    "executed_notebook_present": true,
-    "clean_notebook_present": true,
-    "notebook_json_valid": true,
-    "code_cells_compile": true,
+    "required_files_present": true,
+    "executed_notebook_json_valid": true,
+    "clean_notebook_json_valid": true,
+    "executed_code_compiles": true,
     "executed_counts_present": true,
+    "executed_has_rich_png_outputs": true,
+    "executed_has_outputs": true,
     "clean_counts_cleared": true,
-    "clean_outputs_cleared": true
+    "clean_outputs_cleared": true,
+    "required_sections_present": true
   },
   "executed": {
-    "cells": 27,
-    "code_cells": 13,
-    "executed_code_cells": 13,
-    "error_outputs": 0
+    "cells": 66,
+    "code_cells": 39,
+    "executed_code_cells": 39,
+    "output_count": 59,
+    "png_output_count": 15,
+    "errors": [],
+    "required_sections_present": true
   },
   "clean": {
-    "cells": 27,
-    "code_cells": 13,
+    "cells": 66,
+    "code_cells": 39,
     "executed_code_cells": 0,
-    "output_count": 0
+    "output_count": 0,
+    "png_output_count": 0,
+    "errors": [],
+    "required_sections_present": true
   }
 }
