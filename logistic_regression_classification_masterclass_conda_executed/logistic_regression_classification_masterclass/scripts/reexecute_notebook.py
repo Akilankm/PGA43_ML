@@ -1,4 +1,4 @@
-"""Execute the clean notebook and write the instructor notebook with outputs."""
+"""Re-execute the tracked teaching notebook and write its outputs in place."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from nbconvert.preprocessors import ExecutePreprocessor
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "logistic_regression_classification_masterclass_clean.ipynb"
+SOURCE = ROOT / "logistic_regression_classification_masterclass.ipynb"
 DEFAULT_OUTPUT = ROOT / "logistic_regression_classification_masterclass.ipynb"
 
 

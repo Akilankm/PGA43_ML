@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Validate the distributed notebook package without modifying it."""
+"""Validate the distributed notebook and rendered HTML package without modifying it."""
 
 from __future__ import annotations
 
@@ -13,8 +13,10 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 NOTEBOOK = ROOT / "abalone_linear_regression_masterclass.ipynb"
+HTML = ROOT / "abalone_linear_regression_masterclass.html"
 DATASET = ROOT / "data" / "abalone.csv"
 ENVIRONMENT = ROOT / "environment.yaml"
+RENDER_SCRIPT = ROOT / "scripts" / "render_html.py"
 REPORT = ROOT / "validation_report.json"
 
 
@@ -26,8 +28,17 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def inspect_html(path: Path) -> dict[str, bool | int]:
+    content = path.read_text(encoding="utf-8")
+    return {
+        "bytes": path.stat().st_size,
+        "has_html_document": "<html" in content.lower(),
+        "has_embedded_png": "data:image/png" in content,
+    }
+
+
 def main() -> None:
-    required = [NOTEBOOK, DATASET, ENVIRONMENT, REPORT]
+    required = [NOTEBOOK, HTML, DATASET, ENVIRONMENT, RENDER_SCRIPT, REPORT]
     missing = [str(path) for path in required if not path.exists()]
     if missing:
         raise FileNotFoundError(f"Missing required files: {missing}")
@@ -55,12 +66,15 @@ def main() -> None:
             mime_counts.update(output.get("data", {}).keys())
 
     report = json.loads(REPORT.read_text(encoding="utf-8"))
+    html = inspect_html(HTML)
     checks = {
         "all_code_cells_executed": all(
             cell.get("execution_count") is not None for cell in code_cells
         ),
         "no_error_outputs": not errors,
         "at_least_30_embedded_plots": mime_counts["image/png"] >= 30,
+        "rendered_html_document": html["has_html_document"],
+        "rendered_html_embeds_png": html["has_embedded_png"],
         "dataset_sha256_matches": sha256(DATASET) == report["dataset"]["sha256"],
         "notebook_cell_count_matches": len(notebook.cells) == report["notebook"]["total_cells"],
         "code_cell_count_matches": len(code_cells) == report["notebook"]["code_cells"],
@@ -76,6 +90,7 @@ def main() -> None:
             "mime_counts": dict(mime_counts),
             "errors": errors,
             "dataset_sha256": sha256(DATASET),
+            "html": html,
         },
     }, indent=2))
 

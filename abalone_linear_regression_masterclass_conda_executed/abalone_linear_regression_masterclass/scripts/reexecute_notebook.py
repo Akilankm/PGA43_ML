@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Re-execute the clean teaching notebook and validate all embedded outputs."""
+"""Re-execute the tracked teaching notebook and validate all embedded outputs."""
 
 from __future__ import annotations
 
@@ -77,7 +77,6 @@ def execute_notebook(source: Path, output: Path, kernel_name: str) -> None:
     started = time.time()
     client.execute()
 
-    # Preserve the intended classroom kernel metadata.
     notebook.metadata.kernelspec = {
         "display_name": "Python (Abalone Linear Regression)",
         "language": "python",
@@ -117,12 +116,12 @@ def main() -> None:
     parser.add_argument(
         "--source",
         type=Path,
-        default=Path("abalone_linear_regression_masterclass_clean.ipynb"),
+        default=Path("abalone_linear_regression_masterclass.ipynb"),
     )
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("abalone_linear_regression_masterclass_rerun.ipynb"),
+        default=Path("abalone_linear_regression_masterclass.ipynb"),
     )
     parser.add_argument(
         "--kernel",

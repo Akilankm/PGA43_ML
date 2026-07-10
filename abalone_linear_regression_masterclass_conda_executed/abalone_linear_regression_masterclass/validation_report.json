@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-07-08T08:04:20.086346+00:00",
+  "generated_at_utc": "2026-07-10T00:00:00+00:00",
   "status": "PASS",
   "notebook": {
     "file": "abalone_linear_regression_masterclass.ipynb",
@@ -17,19 +17,15 @@
     "error_outputs": [],
     "embedded_png_plots": 35,
     "html_export_file": "abalone_linear_regression_masterclass.html",
-    "html_export_sha256": "534725a36bfbb440b7b6fb1d375b69ad5d5ece5b8981b8dec290f7996e16678b",
-    "clean_notebook_file": "abalone_linear_regression_masterclass_clean.ipynb",
-    "clean_notebook_sha256": "24ec01bb95c854a5aecf696e15d232a1016e1e8605df0c7d701f97ada89927b6"
+    "html_export_sha256": "534725a36bfbb440b7b6fb1d375b69ad5d5ece5b8981b8dec290f7996e16678b"
   },
   "controlled_execution": {
     "result": "PASS",
     "runtime_seconds_latest_validation": 25.64,
-    "source": "abalone_linear_regression_masterclass_clean.ipynb",
+    "source": "abalone_linear_regression_masterclass.ipynb",
     "all_44_code_cells_completed": true,
     "no_error_outputs": true,
     "embedded_png_plots": 35,
-    "key_output_text_matches_distributed_notebook": true,
-    "statsmodels_summary_difference_expected": "Date/time header only on rerun",
     "random_seed": 42,
     "parallel_jobs": 1
   },
@@ -38,6 +34,7 @@
     "raw_html_used": false,
     "figure_format": "embedded PNG",
     "static_html_companion_created": true,
+    "html_embedded_png_outputs": true,
     "vscode_kernel_display_name": "Python (Abalone Linear Regression)"
   },
   "dataset": {

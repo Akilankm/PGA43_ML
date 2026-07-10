@@ -4,11 +4,10 @@ A fully executed, classroom-grade notebook for teaching linear regression end to
 
 ## Start here
 
-The package contains two notebook variants:
+The package contains one canonical notebook and its rendered companion:
 
 - `abalone_linear_regression_masterclass.ipynb` — **executed notebook with all tables and plots embedded**. Open this first when teaching or reviewing.
-- `abalone_linear_regression_masterclass_clean.ipynb` — identical source notebook with outputs cleared, intended for a controlled student rerun.
-- `abalone_linear_regression_masterclass.html` — static rendered companion for environments where Markdown or MathJax rendering in VS Code is inconsistent.
+- `abalone_linear_regression_masterclass.html` — static rendered companion with embedded outputs for environments where Markdown or MathJax rendering in VS Code is inconsistent.
 
 ## Create the exact Conda environment
 
@@ -42,39 +41,29 @@ The notebook uses standard Markdown, fenced code blocks, `$...$` inline mathemat
 
 When VS Code still fails to display a Markdown cell correctly, use the included HTML file as the exact rendered reference and update the VS Code Jupyter extension before changing notebook content.
 
-## Re-execute and validate
+## Re-execute, render, and validate
 
-The distributed teaching notebook is already executed. To regenerate the outputs from the clean notebook:
+The distributed teaching notebook is already executed and rendered. To reproduce the complete pipeline:
 
 ```bash
 python scripts/reexecute_notebook.py
+python scripts/render_html.py
+python scripts/verify_package.py
 ```
 
-This creates:
-
-```text
-abalone_linear_regression_masterclass_rerun.ipynb
-```
-
-The script fails when:
+The re-execution script reruns the canonical notebook in place. The render script regenerates the self-contained HTML companion. Both scripts fail when:
 
 - the runtime package versions differ from `environment.yaml`;
 - a code cell raises an exception;
 - any code cell is skipped;
-- fewer than 30 graph outputs are embedded.
-
-Validate the supplied package without changing it:
-
-```bash
-python scripts/verify_package.py
-```
+- fewer than 30 graph outputs are embedded; or
+- the rendered HTML is missing embedded plots.
 
 ## Package contents
 
 ```text
 abalone_linear_regression_masterclass/
 ├── abalone_linear_regression_masterclass.ipynb
-├── abalone_linear_regression_masterclass_clean.ipynb
 ├── abalone_linear_regression_masterclass.html
 ├── environment.yaml
 ├── requirements-lock.txt
@@ -82,6 +71,7 @@ abalone_linear_regression_masterclass/
 │   └── abalone.csv
 ├── scripts/
 │   ├── reexecute_notebook.py
+│   ├── render_html.py
 │   └── verify_package.py
 ├── instructor_notes.md
 ├── student_exercises.md
@@ -113,7 +103,7 @@ The data split, random sampling, PCA, cross-validation, and learning-curve subse
 
 The supplied executed notebook was validated with:
 
-- all code cells executed;
+- all 44 code cells executed;
 - no error outputs;
 - 35 embedded PNG graph outputs;
 - the bundled 4,177-row dataset;

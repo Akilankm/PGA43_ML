@@ -4,8 +4,9 @@ This is the complete binary-classification companion to the Abalone linear-regre
 
 ## Start here
 
-- `logistic_regression_classification_masterclass.ipynb` — executed instructor notebook with 66 cells, tables, metrics, and embedded plots.
-- `logistic_regression_classification_masterclass_clean.ipynb` — student/re-execution copy with code preserved and outputs cleared.
+The package contains one canonical notebook and its rendered companion:
+
+- `logistic_regression_classification_masterclass.ipynb` — executed notebook with 66 cells, tables, metrics, and embedded plots.
 - `logistic_regression_classification_masterclass.html` — self-contained static companion with code, tables, and embedded PNG plots.
 
 The executed notebook is committed directly to GitHub. It does not require a ZIP extraction or a notebook-generation step before opening.
@@ -24,7 +25,7 @@ python -m ipykernel install --user \
 
 Open this directory in VS Code, select the `Python (Logistic Regression Masterclass)` kernel, and open the executed notebook. The data generator is local and deterministic; no network download is needed.
 
-## Re-execute and validate
+## Re-execute, render, and validate
 
 ```bash
 python scripts/reexecute_notebook.py
@@ -32,14 +33,13 @@ python scripts/render_html.py
 python scripts/verify_package.py
 ```
 
-`reexecute_notebook.py` starts from the clean notebook and writes a fresh executed notebook. `render_html.py` creates the static companion. `verify_package.py` checks notebook validity, execution counts, output/error state, required package files, and rich-output coverage.
+`reexecute_notebook.py` reruns the canonical notebook and writes the executed result in place. `render_html.py` creates the static companion. `verify_package.py` checks notebook validity, execution counts, output/error state, rich-output coverage, and the rendered HTML.
 
 ## Package layout
 
 ```text
 logistic_regression_classification_masterclass/
 ├── logistic_regression_classification_masterclass.ipynb
-├── logistic_regression_classification_masterclass_clean.ipynb
 ├── logistic_regression_classification_masterclass.html
 ├── environment.yaml
 ├── requirements.txt

@@ -1,4 +1,4 @@
-"""Validate the teaching package and write validation_report.json."""
+"""Validate the teaching package, executed notebook, and rendered HTML."""
 
 from __future__ import annotations
 
@@ -10,11 +10,10 @@ import nbformat
 
 ROOT = Path(__file__).resolve().parents[1]
 EXECUTED = ROOT / "logistic_regression_classification_masterclass.ipynb"
-CLEAN = ROOT / "logistic_regression_classification_masterclass_clean.ipynb"
+HTML = ROOT / "logistic_regression_classification_masterclass.html"
 REQUIRED = [
     EXECUTED,
-    CLEAN,
-    ROOT / "logistic_regression_classification_masterclass.html",
+    HTML,
     ROOT / "environment.yaml",
     ROOT / "requirements.txt",
     ROOT / "requirements-lock.txt",
@@ -62,30 +61,38 @@ def inspect_notebook(path: Path) -> dict:
     }
 
 
+def inspect_html(path: Path) -> dict:
+    content = path.read_text(encoding="utf-8")
+    return {
+        "bytes": path.stat().st_size,
+        "has_html_document": "<html" in content.lower(),
+        "has_embedded_png": "data:image/png" in content,
+    }
+
+
 def main() -> None:
     missing = [str(path.relative_to(ROOT)) for path in REQUIRED if not path.exists()]
     if missing:
         raise RuntimeError(f"Missing required package files: {missing}")
 
     executed = inspect_notebook(EXECUTED)
-    clean = inspect_notebook(CLEAN)
+    rendered_html = inspect_html(HTML)
     checks = {
         "required_files_present": not missing,
         "executed_notebook_json_valid": True,
-        "clean_notebook_json_valid": True,
         "executed_code_compiles": not executed["errors"],
         "executed_counts_present": executed["executed_code_cells"] == executed["code_cells"],
         "executed_has_rich_png_outputs": executed["png_output_count"] >= 10,
         "executed_has_outputs": executed["output_count"] >= executed["code_cells"],
-        "clean_counts_cleared": clean["executed_code_cells"] == 0,
-        "clean_outputs_cleared": clean["output_count"] == 0,
+        "rendered_html_document": rendered_html["has_html_document"],
+        "rendered_html_embeds_png": rendered_html["has_embedded_png"],
         "required_sections_present": executed["required_sections_present"],
     }
     report = {
         "status": "passed" if all(checks.values()) else "failed",
         "checks": checks,
         "executed": executed,
-        "clean": clean,
+        "rendered_html": rendered_html,
     }
     (ROOT / "validation_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(json.dumps(report, indent=2))

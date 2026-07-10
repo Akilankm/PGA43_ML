@@ -2,7 +2,7 @@
 
 Curated, reproducible statistical machine-learning teaching resources.
 
-This repository contains only validated, classroom-ready masterclass packages. Each package includes an executed notebook with embedded outputs, a clean student notebook, reproducible environment instructions, supporting documentation, and validation metadata.
+This repository contains only validated, classroom-ready masterclass packages. Each package includes one canonical end-to-end notebook with embedded outputs, a rendered HTML companion, reproducible environment instructions, supporting documentation, and validation metadata.
 
 ## Curated learning paths
 
@@ -34,8 +34,8 @@ Each masterclass provides its own `environment.yaml`. Create an environment with
 conda env create -f environment.yaml
 ```
 
-Then open the executed notebook in VS Code or Jupyter using the environment's registered kernel.
+Then run the package's validation command or open the executed notebook in VS Code or Jupyter using the environment's registered kernel. The committed notebooks already contain their end-to-end outputs; the HTML files are the static rendered references.
 
 ## Curation policy
 
-Legacy theory dumps, duplicated notebooks, generated build-only files, and unvalidated examples are intentionally excluded. The repository prioritises a small number of coherent, runnable, review-ready learning paths.
+Legacy theory dumps, duplicated notebooks, outputless showcase notebooks, generated build-only files, and unvalidated examples are intentionally excluded. The repository prioritises a small number of coherent, runnable, review-ready learning paths.

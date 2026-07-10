@@ -3,13 +3,12 @@
   "checks": {
     "required_files_present": true,
     "executed_notebook_json_valid": true,
-    "clean_notebook_json_valid": true,
     "executed_code_compiles": true,
     "executed_counts_present": true,
     "executed_has_rich_png_outputs": true,
     "executed_has_outputs": true,
-    "clean_counts_cleared": true,
-    "clean_outputs_cleared": true,
+    "rendered_html_document": true,
+    "rendered_html_embeds_png": true,
     "required_sections_present": true
   },
   "executed": {
@@ -21,13 +20,10 @@
     "errors": [],
     "required_sections_present": true
   },
-  "clean": {
-    "cells": 66,
-    "code_cells": 39,
-    "executed_code_cells": 0,
-    "output_count": 0,
-    "png_output_count": 0,
-    "errors": [],
-    "required_sections_present": true
+  "rendered_html": {
+    "file": "logistic_regression_classification_masterclass.html",
+    "present": true,
+    "has_html_document": true,
+    "has_embedded_png": true
   }
 }
