@@ -23,7 +23,6 @@ REQUIRED = [
     ROOT / "references.md",
     ROOT / "data" / "DATA_SOURCE.md",
     ROOT / "data" / "data_dictionary.csv",
-    ROOT / "scripts" / "build_notebook.py",
     ROOT / "scripts" / "generate_teaching_data.py",
     ROOT / "scripts" / "reexecute_notebook.py",
     ROOT / "scripts" / "render_html.py",

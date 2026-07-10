@@ -48,8 +48,6 @@ logistic_regression_classification_masterclass/
 │   ├── DATA_SOURCE.md
 │   └── data_dictionary.csv
 ├── scripts/
-│   ├── build_notebook.py
-│   ├── execute_inprocess.py
 │   ├── generate_teaching_data.py
 │   ├── reexecute_notebook.py
 │   ├── render_html.py
