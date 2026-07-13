@@ -15,3 +15,5 @@ exec(
     compile(source, __file__, "exec"),
     {"__name__": "__main__", "__file__": __file__},
 )
+
+# This branch-only change triggers the validated resource build after merge.
