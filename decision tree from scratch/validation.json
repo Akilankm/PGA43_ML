@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "notebook": "decision_tree_from_scratch_play_tennis.ipynb",
+  "notebook_cells": 9,
+  "executed_code_cells": 5,
+  "execution_errors": 0,
+  "embedded_outputs": true,
+  "embedded_visual_tree": true,
+  "dataset_rows": 14,
+  "dataset_columns": 6,
+  "root_feature": "Outlook",
+  "sunny_split": "Humidity",
+  "rain_split": "Wind",
+  "training_reconstruction_accuracy": 1.0,
+  "root_information_gain": {
+    "Outlook": 0.246750,
+    "Humidity": 0.151836,
+    "Wind": 0.048127,
+    "Temperature": 0.029223
+  },
+  "libraries": ["numpy", "pandas", "matplotlib", "seaborn"],
+  "sklearn_decision_tree_used": false
+}

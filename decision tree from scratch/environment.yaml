@@ -1,0 +1,13 @@
+name: decision-tree-from-scratch
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy=2.3
+  - pandas=2.2
+  - matplotlib=3.10
+  - seaborn=0.13
+  - jupyterlab=4
+  - notebook=7
+  - nbconvert=7
+  - ipykernel=6

@@ -26,6 +26,16 @@ Covers probability and log-odds, leakage-aware EDA, preprocessing pipelines, Sta
 
 [Open the Logistic Regression masterclass README](logistic_regression_classification_masterclass_conda_executed/logistic_regression_classification_masterclass/README.md)
 
+### 3. Decision Tree from Scratch — Play Tennis Masterclass
+
+Path:
+
+`decision tree from scratch/`
+
+Covers manual entropy, information gain, Gini impurity, every root and recursive split calculation, categorical and numerical splitting concepts, a from-scratch ID3 implementation, rendered tree visualization, prediction tracing, stopping criteria, pruning, and critical generalization failure modes.
+
+[Open the Decision Tree from Scratch README](decision%20tree%20from%20scratch/README.md)
+
 ## Reproducibility
 
 Each masterclass provides its own `environment.yaml`. Create an environment with:
