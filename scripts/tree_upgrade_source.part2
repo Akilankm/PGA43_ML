@@ -1,0 +1,169 @@
+def decision_tree_notebook():
+    cells = common_prefix("Decision Tree Classification — Exhaustive Visual Masterclass", "**Path:** impurity → candidate splits → recursive partitions → stopping/pruning → probability leaves → threshold policy.")
+    cells += [
+        md(r"""## 10. CART mechanics from first principles
+For node class proportions $p_k$, Gini impurity is $1-\sum_kp_k^2$ and entropy is $-\sum_kp_k\log_2p_k$. A split is valuable only when the weighted child impurity is lower than the parent impurity. Misclassification error is less sensitive and is usually not the split criterion."""),
+        code(r'''
+p = np.linspace(.001,.999,400)
+gini_curve = 2*p*(1-p)
+entropy_curve = -(p*np.log2(p)+(1-p)*np.log2(1-p))
+misclass_curve = np.minimum(p,1-p)
+plt.plot(p,gini_curve,label="Gini"); plt.plot(p,entropy_curve,label="Entropy"); plt.plot(p,misclass_curve,label="Misclassification error")
+plt.axvline(.5,linestyle="--"); plt.xlabel("positive-class proportion"); plt.ylabel("impurity"); plt.title("Impurity is maximal at maximum class uncertainty"); plt.legend(); plt.tight_layout(); plt.show()
+'''),
+        md("## 11. Manual numerical split search and inference"),
+        code(r'''
+def gini(yv):
+    counts=np.bincount(np.asarray(yv,dtype=int),minlength=2); p=counts/counts.sum(); return 1-np.sum(p*p)
+def split_scan(feature):
+    tmp=pd.DataFrame({"x":X_train[feature],"y":y_train}).dropna().sort_values("x")
+    candidates=np.unique(np.quantile(tmp.x,np.linspace(.05,.95,80)))
+    parent=gini(tmp.y); rows=[]
+    for t in candidates:
+        left=tmp[tmp.x<=t].y; right=tmp[tmp.x>t].y
+        if min(len(left),len(right))<20: continue
+        child=len(left)/len(tmp)*gini(left)+len(right)/len(tmp)*gini(right)
+        rows.append({"threshold":t,"gain":parent-child,"left_n":len(left),"right_n":len(right),"left_rate":left.mean(),"right_rate":right.mean()})
+    return pd.DataFrame(rows).sort_values("gain",ascending=False)
+scan=split_scan("debt_ratio"); display(scan.head(10))
+best=scan.iloc[0]
+plt.plot(scan.threshold,scan.gain); plt.axvline(best.threshold,linestyle="--",label=f"best={best.threshold:.3f}")
+plt.title("Every candidate threshold competes on weighted impurity reduction"); plt.xlabel("candidate threshold"); plt.ylabel("Gini gain"); plt.legend(); plt.tight_layout(); plt.show()
+'''),
+        md("## 12. Manual categorical split logic\n\nCART partitions categories into two groups. One-hot encoding turns this into transparent yes/no membership tests. Rare categories require caution because high apparent gain may be sampling noise."),
+        code(r'''
+rates=X_train.assign(target=y_train.values).groupby("purpose").target.agg(["mean","count"]).sort_values("mean")
+display(rates)
+rates["mean"].plot(kind="bar",title="Categorical split intuition: ordered target rates")
+plt.axhline(y_train.mean(),linestyle="--"); plt.ylabel("target rate"); plt.tight_layout(); plt.show()
+'''),
+        md("## 13. A decision stump from scratch"),
+        code(r'''
+class NumericDecisionStump:
+    def fit(self, x, y):
+        table=pd.DataFrame({"x":x,"y":y}).dropna(); self.fill_=table.x.median(); table.x=table.x.fillna(self.fill_)
+        candidates=np.unique(np.quantile(table.x,np.linspace(.05,.95,100))); parent=gini(table.y); best=None
+        for t in candidates:
+            left=table[table.x<=t].y; right=table[table.x>t].y
+            if min(len(left),len(right))<15: continue
+            gain=parent-(len(left)*gini(left)+len(right)*gini(right))/len(table)
+            if best is None or gain>best[0]: best=(gain,t,left.mean(),right.mean())
+        self.gain_,self.threshold_,self.left_probability_,self.right_probability_=best; return self
+    def predict_proba(self,x):
+        x=pd.Series(x).fillna(self.fill_).to_numpy(); p=np.where(x<=self.threshold_,self.left_probability_,self.right_probability_); return np.c_[1-p,p]
+stump=NumericDecisionStump().fit(X_train.credit_score,y_train)
+print(vars(stump)); display(pd.DataFrame([metric_row("scratch_stump",y_valid,stump.predict_proba(X_valid.credit_score)[:,1])]))
+'''),
+        md("## 14. Baseline ladder: majority, logistic, shallow tree, unconstrained tree"),
+        code(r'''
+models={
+ "logistic":Pipeline([("preprocess",preprocess),("model",LogisticRegression(max_iter=2000,class_weight="balanced"))]),
+ "tree_depth4":Pipeline([("preprocess",preprocess),("model",DecisionTreeClassifier(max_depth=4,min_samples_leaf=25,class_weight="balanced",random_state=RANDOM_STATE))]),
+ "tree_unconstrained":Pipeline([("preprocess",preprocess),("model",DecisionTreeClassifier(class_weight="balanced",random_state=RANDOM_STATE))]),
+}
+rows=[]
+majority=np.repeat(y_train.mode().iloc[0],len(y_valid)); majority_proba=np.repeat(y_train.mean(),len(y_valid)); rows.append(metric_row("majority",y_valid,majority_proba))
+for name,model in models.items(): model.fit(X_train,y_train); rows.append(evaluate_model(name,model))
+comparison=pd.DataFrame(rows).sort_values("roc_auc",ascending=False); display(comparison)
+comparison.set_index("model")[["roc_auc","average_precision","balanced_accuracy","f1"]].plot(kind="bar",ylim=(0,1),title="Baseline ladder")
+plt.tight_layout(); plt.show()
+'''),
+        md("## 15. Capacity diagnostics: depth and minimum leaf size"),
+        code(r'''
+rows=[]
+for depth in [1,2,3,4,5,6,8,12,None]:
+ for leaf in [1,10,25,50]:
+  m=Pipeline([("preprocess",preprocess),("model",DecisionTreeClassifier(max_depth=depth,min_samples_leaf=leaf,class_weight="balanced",random_state=RANDOM_STATE))])
+  m.fit(X_train,y_train)
+  rows.append({"depth":99 if depth is None else depth,"leaf":leaf,"train_auc":roc_auc_score(y_train,m.predict_proba(X_train)[:,1]),"valid_auc":roc_auc_score(y_valid,m.predict_proba(X_valid)[:,1])})
+capacity=pd.DataFrame(rows)
+for leaf,part in capacity.groupby("leaf"):
+ plt.plot(part.depth,part.valid_auc,marker="o",label=f"leaf={leaf}")
+plt.xlabel("max depth (99 = unlimited)"); plt.ylabel("validation ROC-AUC"); plt.title("Capacity surface: depth × minimum leaf size"); plt.legend(); plt.tight_layout(); plt.show()
+'''),
+        md("## 16. Cost-complexity pruning path"),
+        code(r'''
+prep=clone(preprocess); Xt=prep.fit_transform(X_train); Xv=prep.transform(X_valid)
+base_tree=DecisionTreeClassifier(class_weight="balanced",random_state=RANDOM_STATE).fit(Xt,y_train)
+path=base_tree.cost_complexity_pruning_path(Xt,y_train)
+alphas=np.unique(np.quantile(path.ccp_alphas[:-1],np.linspace(0,1,30)))
+rows=[]
+for a in alphas:
+ t=DecisionTreeClassifier(ccp_alpha=float(a),class_weight="balanced",random_state=RANDOM_STATE).fit(Xt,y_train)
+ rows.append({"alpha":a,"nodes":t.tree_.node_count,"depth":t.get_depth(),"train_auc":roc_auc_score(y_train,t.predict_proba(Xt)[:,1]),"valid_auc":roc_auc_score(y_valid,t.predict_proba(Xv)[:,1])})
+prune=pd.DataFrame(rows); display(prune.sort_values("valid_auc",ascending=False).head())
+fig,axes=plt.subplots(1,2,figsize=(14,4)); prune.plot(x="alpha",y=["train_auc","valid_auc"],ax=axes[0]); prune.plot(x="alpha",y=["nodes","depth"],secondary_y="depth",ax=axes[1]); axes[0].set_title("Pruning trades fit for generalization"); axes[1].set_title("Structural simplification"); plt.tight_layout(); plt.show()
+'''),
+        md("## 17. Cross-validated hyperparameter search"),
+        code(r'''
+base=Pipeline([("preprocess",preprocess),("model",DecisionTreeClassifier(class_weight="balanced",random_state=RANDOM_STATE))])
+search=RandomizedSearchCV(base,{"model__criterion":["gini","entropy","log_loss"],"model__max_depth":[3,4,5,6,8,12,None],"model__min_samples_split":[2,10,25,50],"model__min_samples_leaf":[5,10,20,35,50],"model__max_features":[None,"sqrt",.7],"model__ccp_alpha":[0,.0005,.001,.002,.004]},n_iter=25,scoring="roc_auc",cv=StratifiedKFold(5,shuffle=True,random_state=RANDOM_STATE),random_state=RANDOM_STATE,n_jobs=1,return_train_score=True)
+search.fit(X_train_full,y_train_full); selected_model=search.best_estimator_
+print("best CV AUC:",search.best_score_); print(search.best_params_)
+cv_results=pd.DataFrame(search.cv_results_).sort_values("rank_test_score").head(15); display(cv_results[["mean_train_score","mean_test_score","std_test_score","params"]])
+'''),
+        md("## 18. Repeated-CV stability and learning curve"),
+        code(r'''
+cv=RepeatedStratifiedKFold(n_splits=5,n_repeats=3,random_state=RANDOM_STATE)
+scores=cross_validate(selected_model,X_train_full,y_train_full,cv=cv,scoring={"auc":"roc_auc","ap":"average_precision","bal":"balanced_accuracy"},n_jobs=1)
+stability=pd.DataFrame({k.replace("test_",""):v for k,v in scores.items() if k.startswith("test_")}); display(stability.describe().T)
+stability.boxplot(); plt.title("Repeated-CV performance distribution"); plt.ylabel("score"); plt.tight_layout(); plt.show()
+sizes,tr,va=learning_curve(selected_model,X_train_full,y_train_full,train_sizes=np.linspace(.3,1,3),cv=StratifiedKFold(2,shuffle=True,random_state=RANDOM_STATE),scoring="roc_auc",n_jobs=1)
+plt.plot(sizes,tr.mean(1),marker="o",label="train"); plt.plot(sizes,va.mean(1),marker="o",label="CV"); plt.fill_between(sizes,va.mean(1)-va.std(1),va.mean(1)+va.std(1),alpha=.2); plt.xlabel("training rows"); plt.ylabel("ROC-AUC"); plt.title("Learning curve: data limitation vs model limitation"); plt.legend(); plt.tight_layout(); plt.show()
+'''),
+        md("## 19. Tree structure, rules, local paths, and leaf audit"),
+        code(r'''
+selected_model.fit(X_train_full,y_train_full)
+feature_names=selected_model.named_steps["preprocess"].get_feature_names_out(); tree=selected_model.named_steps["model"]
+plt.figure(figsize=(22,11)); plot_tree(tree,feature_names=feature_names,class_names=["no default","default"],max_depth=3,filled=True,rounded=True,fontsize=8); plt.title("Top levels of selected tree"); plt.show()
+print(export_text(tree,feature_names=list(feature_names),max_depth=4))
+Xt_full=selected_model.named_steps["preprocess"].transform(X_train_full); Xv=selected_model.named_steps["preprocess"].transform(X_valid)
+path=tree.decision_path(Xv[:3]); leaves=tree.apply(Xv[:3])
+for i in range(3): print(f"record {i}: leaf={leaves[i]}, path nodes={path.indices[path.indptr[i]:path.indptr[i+1]].tolist()}")
+leaf_id=tree.apply(Xt_full); leaf_table=pd.DataFrame({"leaf":leaf_id,"y":y_train_full.values}).groupby("leaf").y.agg(["size","mean"]).sort_values("size",ascending=False); display(leaf_table.head(15))
+leaf_table["size"].hist(bins=25); plt.title("Leaf support distribution: tiny leaves signal variance"); plt.xlabel("samples per leaf"); plt.tight_layout(); plt.show()
+'''),
+        md("## 20. Global importance: impurity vs permutation"),
+        code(r'''
+mdi=pd.Series(tree.feature_importances_,index=feature_names,name="MDI").sort_values(ascending=False)
+perm=permutation_importance(selected_model,X_valid,y_valid,scoring="roc_auc",n_repeats=8,random_state=RANDOM_STATE,n_jobs=1)
+perm_s=pd.Series(perm.importances_mean,index=X_valid.columns,name="permutation_auc_drop").sort_values(ascending=False)
+fig,axes=plt.subplots(1,2,figsize=(15,6)); mdi.head(15).sort_values().plot(kind="barh",ax=axes[0],title="Impurity importance"); perm_s.head(15).sort_values().plot(kind="barh",ax=axes[1],title="Permutation importance"); plt.tight_layout(); plt.show(); display(perm_s.to_frame())
+'''),
+        md("## 21. Partial dependence: conditional model response, not causality"),
+        code(r'''
+PartialDependenceDisplay.from_estimator(selected_model,X_valid,["credit_score","debt_ratio","loan_amount"],kind="both",subsample=200,random_state=RANDOM_STATE,grid_resolution=25)
+plt.suptitle("PDP + ICE: average response can hide heterogeneous paths"); plt.tight_layout(); plt.show()
+'''),
+        md("## 22. Validation diagnostics before probability calibration"),
+        code(r'''
+display(pd.DataFrame([evaluate_model("selected_tree",selected_model)])); plot_classifier_diagnostics(selected_model,X_valid,y_valid,"Selected decision tree")
+'''),
+        md("## 23. Calibration"), code(COMMON_CALIBRATION),
+        md("## 24. Validation-only threshold engineering"), code(COMMON_THRESHOLD),
+        md("## 25. Subgroup diagnostics—not fairness certification"), code(COMMON_SUBGROUP),
+        md("## 26. Robustness to plausible perturbations"), code(COMMON_ROBUSTNESS),
+        md("## 27. Final untouched-test evaluation with bootstrap uncertainty"), code(COMMON_FINAL),
+        md("## 28. Serialization, prediction contract, and model card"), code('ARTIFACT_NAME="decision_tree_classifier.joblib"\nALGORITHM_NAME="Calibrated pruned DecisionTreeClassifier"\n'+COMMON_DEPLOY),
+        md("""## 29. Failure modes and remedies
+- **High variance:** constrain depth/leaf size or prune; confirm with repeated CV.
+- **Fragmented categories:** inspect support before trusting category splits.
+- **Unstable probabilities:** calibrate using training folds only.
+- **Misleading importance:** compare MDI with permutation and inspect correlated predictors.
+- **Policy leakage:** choose thresholds only on validation, never on test.
+- **Distribution shift:** monitor schema, missingness, base rate, calibration, and subgroup behavior."""),
+        md("""## 30. Mastery exercises
+1. Derive Gini and entropy for three different class proportions.
+2. Hand-calculate weighted impurity for a candidate split.
+3. Explain why an unconstrained tree can have perfect training accuracy and poor validation AUC.
+4. Re-run pruning with a one-standard-error selection rule.
+5. Compare Gini, entropy, and log-loss criteria.
+6. Explain why one-hot encoded categories become binary membership rules.
+7. Trace one prediction from root to leaf.
+8. Compare MDI and permutation importance under correlated features.
+9. Design a different false-negative/false-positive cost function.
+10. Write monitoring thresholds for drift, calibration, and missingness."""),
+    ]
+    return notebook(cells, "Decision Tree Classification — Exhaustive Visual Masterclass")
+
+
