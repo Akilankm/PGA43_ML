@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
-      MPLBACKEND: Agg
       OMP_NUM_THREADS: '1'
       OPENBLAS_NUM_THREADS: '1'
       MKL_NUM_THREADS: '1'
@@ -49,6 +48,17 @@ jobs:
             scripts/tree_upgrade_source.part3 \
             scripts/tree_upgrade_source.part4 \
             > scripts/materialize_tree_ensemble_masterclasses.py
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('scripts/materialize_tree_ensemble_masterclasses.py')
+          source = path.read_text(encoding='utf-8')
+          source = source.replace(
+              'import matplotlib.pyplot as plt\n',
+              'import matplotlib.pyplot as plt\nfrom IPython import get_ipython\nget_ipython().run_line_magic("matplotlib", "inline")\n',
+              1,
+          )
+          path.write_text(source, encoding='utf-8')
+          PY
           python -m py_compile scripts/materialize_tree_ensemble_masterclasses.py
 
       - name: Build, execute, render, and validate masterclasses
