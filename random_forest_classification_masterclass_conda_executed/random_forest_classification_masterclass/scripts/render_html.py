@@ -1,4 +1,5 @@
 from pathlib import Path
 import nbformat
 from nbconvert import HTMLExporter
-R=Path(__file__).resolve().parents[1];B=nbformat.read(R/"random_forest_classification_masterclass.ipynb",as_version=4);H,_=HTMLExporter().from_notebook_node(B);(R/"random_forest_classification_masterclass.html").write_text(H)
+ROOT=Path(__file__).resolve().parents[1]; NB=ROOT/"random_forest_classification_masterclass.ipynb"; HTML=ROOT/"random_forest_classification_masterclass.html"
+body,_=HTMLExporter().from_notebook_node(nbformat.read(NB,as_version=4)); HTML.write_text(body,encoding="utf-8"); print("rendered",HTML)

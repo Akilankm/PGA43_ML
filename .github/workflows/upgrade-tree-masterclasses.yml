@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   build:
@@ -14,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
-      MPLBACKEND: Agg
       OMP_NUM_THREADS: '1'
       OPENBLAS_NUM_THREADS: '1'
       MKL_NUM_THREADS: '1'
@@ -48,15 +48,46 @@ jobs:
             scripts/tree_upgrade_source.part3 \
             scripts/tree_upgrade_source.part4 \
             > scripts/materialize_tree_ensemble_masterclasses.py
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('scripts/materialize_tree_ensemble_masterclasses.py')
+          source = path.read_text(encoding='utf-8')
+          source = source.replace(
+              'import matplotlib.pyplot as plt\n',
+              'import matplotlib.pyplot as plt\nfrom IPython import get_ipython\nget_ipython().run_line_magic("matplotlib", "inline")\n',
+              1,
+          )
+          path.write_text(source, encoding='utf-8')
+          PY
           python -m py_compile scripts/materialize_tree_ensemble_masterclasses.py
 
       - name: Build, execute, render, and validate masterclasses
-        run: python scripts/materialize_tree_ensemble_masterclasses.py
+        shell: bash
+        run: |
+          set -o pipefail
+          python scripts/materialize_tree_ensemble_masterclasses.py 2>&1 | tee tree-masterclass-build.log
+
+      - name: Post failure traceback to pull request
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo '### Tree masterclass build failure'
+            echo
+            echo '```text'
+            tail -n 160 tree-masterclass-build.log
+            echo '```'
+          } > failure-comment.md
+          gh pr comment "${{ github.event.pull_request.number }}" --body-file failure-comment.md
 
       - name: Commit generated teaching artifacts to PR branch
+        if: success()
         run: |
           rm -f scripts/tree_upgrade_source.part*
           rm -f scripts/.tree_masterclass_payload.part*
+          rm -f tree-masterclass-build.log
+          rm -f .tree_masterclass_upgrade_trigger
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A

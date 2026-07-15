@@ -1,4 +1,5 @@
 from pathlib import Path
 import nbformat
 from nbclient import NotebookClient
-R=Path(__file__).resolve().parents[1];P=R/"decision_tree_classification_masterclass.ipynb";B=nbformat.read(P,as_version=4);NotebookClient(B,timeout=900,kernel_name="python3",resources={"metadata":{"path":str(R)}}).execute();nbformat.write(B,P)
+ROOT=Path(__file__).resolve().parents[1]; NB=ROOT/"decision_tree_classification_masterclass.ipynb"
+nb=nbformat.read(NB,as_version=4); NotebookClient(nb,timeout=1800,kernel_name="python3",resources={"metadata":{"path":str(ROOT)}}).execute(); nbformat.write(nb,NB); print("executed",NB)

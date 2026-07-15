@@ -1,20 +1,27 @@
 {
-  "algorithm": "RandomForestClassifier",
-  "intended_use": "education",
-  "prohibited_use": "real credit decisions",
+  "algorithm": "Calibrated RandomForestClassifier",
+  "intended_use": "education only",
+  "prohibited_use": "real lending or eligibility decisions",
+  "data": "deterministic synthetic teaching data",
+  "threshold": 0.27,
   "test_metrics": {
-    "model": "random_forest_final",
-    "roc_auc": 0.9123746141975309,
-    "average_precision": 0.601622215269685,
-    "balanced_accuracy": 0.8263888888888888,
-    "f1": 0.5441176470588235,
-    "mcc": 0.5061083283983889,
-    "log_loss": 0.3032947937174989,
-    "brier": 0.09087873708421101
+    "model": "final_test",
+    "threshold": 0.27,
+    "accuracy": 0.89375,
+    "balanced_accuracy": 0.8113425925925926,
+    "precision": 0.4788732394366197,
+    "recall": 0.7083333333333334,
+    "f1": 0.5714285714285714,
+    "mcc": 0.5261871002428402,
+    "roc_auc": 0.920187114197531,
+    "average_precision": 0.6081832603246331,
+    "log_loss": 0.1955839200716752,
+    "brier": 0.05921005896495791
   },
-  "limits": [
+  "limitations": [
     "synthetic data",
-    "importance is noncausal",
-    "calibration not guaranteed"
+    "noncausal interpretation",
+    "performance may drift",
+    "subgroup diagnostics are not fairness certification"
   ]
 }
