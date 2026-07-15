@@ -1,11 +1,9 @@
 name: Upgrade tree masterclasses
 
 on:
-  push:
+  pull_request:
     branches: [master]
-    paths:
-      - 'scripts/tree_upgrade_source.part*'
-      - '.github/workflows/upgrade-tree-masterclasses.yml'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -22,9 +20,10 @@ jobs:
       MKL_NUM_THREADS: '1'
       NUMEXPR_NUM_THREADS: '1'
     steps:
-      - name: Checkout repository
+      - name: Checkout pull-request branch
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.head_ref }}
           fetch-depth: 0
 
       - name: Set up Python
@@ -54,13 +53,12 @@ jobs:
       - name: Build, execute, render, and validate masterclasses
         run: python scripts/materialize_tree_ensemble_masterclasses.py
 
-      - name: Commit generated teaching artifacts
+      - name: Commit generated teaching artifacts to PR branch
         run: |
           rm -f scripts/tree_upgrade_source.part*
           rm -f scripts/.tree_masterclass_payload.part*
-          rm -f .github/workflows/upgrade-tree-masterclasses.yml
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
           git commit -m 'Upgrade tree masterclasses into exhaustive visual learning resources'
-          git push origin master
+          git push origin HEAD:${{ github.head_ref }}
