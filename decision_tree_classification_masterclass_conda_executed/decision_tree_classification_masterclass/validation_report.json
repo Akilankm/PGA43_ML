@@ -1,14 +1,13 @@
 {
-  "total_cells": 59,
-  "markdown_cells": 32,
-  "code_cells": 27,
-  "chapters": 31,
+  "total_cells": 87,
+  "markdown_cells": 47,
+  "code_cells": 40,
+  "chapters": 45,
   "unexecuted_code_cells": 0,
   "error_outputs": 0,
-  "embedded_png_figures": 36,
-  "missing_required_files": [],
-  "minimum_code_cells": 25,
-  "minimum_figures": 35,
-  "minimum_chapters": 28,
+  "embedded_png_figures": 55,
+  "minimum_code_cells": 38,
+  "minimum_figures": 52,
+  "minimum_chapters": 42,
   "passes": true
 }
