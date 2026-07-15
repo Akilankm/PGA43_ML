@@ -60,7 +60,8 @@ print("Inference: the one-SE rule deliberately trades negligible validation perf
 
 TREE_LEAF_AUDIT = r'''
 # Leaf-level reliability: support, observed rate, raw probability and Laplace smoothing.
-leaf_ids = expert_tree.apply(X_valid_expert)
+Xt_leaf = expert_tree.named_steps["preprocess"].transform(X_valid_expert)
+leaf_ids = expert_tree.named_steps["model"].apply(Xt_leaf)
 p_tree = expert_tree.predict_proba(X_valid_expert)[:,1]
 leaf_table = pd.DataFrame({"leaf": leaf_ids, "y": y_valid_expert.values, "raw_p": p_tree}).groupby("leaf").agg(
     n=("y","size"), events=("y","sum"), observed_rate=("y","mean"), raw_probability=("raw_p","mean")
