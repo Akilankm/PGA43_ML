@@ -36,6 +36,26 @@ Covers manual entropy, information gain, Gini impurity, every root and recursive
 
 [Open the Decision Tree from Scratch README](decision%20tree%20from%20scratch/README.md)
 
+### 4. Decision Tree Classification Masterclass
+
+Path:
+
+`decision_tree_classification_masterclass_conda_executed/decision_tree_classification_masterclass/`
+
+Covers manual Gini gain, leakage-safe mixed-feature preprocessing, baselines, capacity diagnostics, cross-validated tuning, cost-complexity pruning, tree visualization, rule tracing, importance analysis, threshold engineering, untouched-test evaluation, subgroup diagnostics, serialization, and model-card practice.
+
+[Open the Decision Tree Classification masterclass README](decision_tree_classification_masterclass_conda_executed/decision_tree_classification_masterclass/README.md)
+
+### 5. Random Forest Classification Masterclass
+
+Path:
+
+`random_forest_classification_masterclass_conda_executed/random_forest_classification_masterclass/`
+
+Covers bootstrap aggregation, random feature subspaces, OOB evaluation, convergence and diversity diagnostics, baseline comparisons, cross-validated tuning, importance and partial dependence, probability and threshold engineering, untouched-test comparison, subgroup diagnostics, serialization, and production limitations.
+
+[Open the Random Forest Classification masterclass README](random_forest_classification_masterclass_conda_executed/random_forest_classification_masterclass/README.md)
+
 ## Reproducibility
 
 Each masterclass provides its own `environment.yaml`. Create an environment with:
