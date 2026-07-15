@@ -1,11 +1,14 @@
 {
-  "notebook": "random_forest_classification_masterclass.ipynb",
-  "total_cells": 25,
-  "code_cells": 12,
-  "executed_code_cells": 12,
+  "total_cells": 60,
+  "markdown_cells": 33,
+  "code_cells": 27,
+  "chapters": 32,
+  "unexecuted_code_cells": 0,
   "error_outputs": 0,
-  "embedded_png_figures": 11,
-  "minimum_figures": 10,
-  "dataset_rows": 2400,
-  "passed": true
+  "embedded_png_figures": 39,
+  "missing_required_files": [],
+  "minimum_code_cells": 25,
+  "minimum_figures": 35,
+  "minimum_chapters": 28,
+  "passes": true
 }

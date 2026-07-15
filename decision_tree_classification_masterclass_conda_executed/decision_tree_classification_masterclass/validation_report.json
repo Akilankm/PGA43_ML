@@ -1,11 +1,14 @@
 {
-  "notebook": "decision_tree_classification_masterclass.ipynb",
-  "total_cells": 23,
-  "code_cells": 11,
-  "executed_code_cells": 11,
+  "total_cells": 59,
+  "markdown_cells": 32,
+  "code_cells": 27,
+  "chapters": 31,
+  "unexecuted_code_cells": 0,
   "error_outputs": 0,
-  "embedded_png_figures": 10,
-  "minimum_figures": 8,
-  "dataset_rows": 2400,
-  "passed": true
+  "embedded_png_figures": 36,
+  "missing_required_files": [],
+  "minimum_code_cells": 25,
+  "minimum_figures": 35,
+  "minimum_chapters": 28,
+  "passes": true
 }
