@@ -74,7 +74,13 @@ COMMON_STRESS = r'''
 # Robustness and distribution-shift stress tests.
 def stress_copy(X, scenario):
     out = X.copy()
-    rng = np.random.default_rng(RANDOM_STATE + hash(scenario) % 1000)
+    scenario_seed = {
+        "5% extra numeric missingness": 101,
+        "10% numeric noise": 202,
+        "unseen categories": 303,
+        "high-risk covariate shift": 404,
+    }.get(scenario, 0)
+    rng = np.random.default_rng(RANDOM_STATE + scenario_seed)
     if scenario == "5% extra numeric missingness":
         for col in num_expert:
             idx = rng.choice(out.index, max(1, int(0.05*len(out))), replace=False)
