@@ -1,0 +1,13 @@
+name: adaboost-masterclass
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - numpy=2.0
+  - pandas=2.2
+  - scikit-learn=1.8
+  - matplotlib=3.9
+  - jupyterlab=4.2
+  - nbclient=0.10
+  - nbformat=5.10
+  - ipykernel=6.29
