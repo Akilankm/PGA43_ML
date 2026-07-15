@@ -1,0 +1,116 @@
+surrogate = DecisionTreeClassifier(max_depth=4, min_samples_leaf=35, random_state=RANDOM_STATE)
+surrogate.fit(Xt_train, (forest_train_p >= .5).astype(int))
+surrogate_class = surrogate.predict(Xt_valid2)
+fidelity = np.mean(surrogate_class == (forest_valid_p >= .5))
+mae = np.mean(np.abs(surrogate.predict_proba(Xt_valid2)[:,1] - forest_valid_p))
+print({"surrogate_classification_fidelity": fidelity, "surrogate_probability_MAE": mae})
+plt.figure(figsize=(18, 8))
+plot_tree(surrogate, feature_names=feature_names, class_names=["forest low","forest high"], filled=True, rounded=True, max_depth=4, fontsize=7)
+plt.title("Shallow surrogate tree approximating the random forest")
+plt.tight_layout(); plt.show()
+
+plt.figure(figsize=(8, 6))
+plt.scatter(forest_valid_p, surrogate.predict_proba(Xt_valid2)[:,1], alpha=.55)
+plt.plot([0,1],[0,1], linestyle="--")
+plt.xlabel("Random forest probability"); plt.ylabel("Surrogate probability")
+plt.title("Surrogate fidelity must be measured, not assumed")
+plt.tight_layout(); plt.show()
+print("Inference: the surrogate is an approximation of the forest, not the forest itself. Explanations are trustworthy only to the extent quantified by fidelity.")
+'''
+
+
+FOREST_CONFORMAL = r'''
+# Split-conformal prediction sets for finite-sample uncertainty communication.
+# Calibration nonconformity is 1 - probability assigned to the true class.
+p_cal = expert_forest.predict_proba(X_valid_expert)
+true_prob = p_cal[np.arange(len(y_valid_expert)), y_valid_expert.values]
+nonconformity = 1 - true_prob
+alpha = 0.10
+q_level = np.ceil((len(nonconformity)+1)*(1-alpha))/len(nonconformity)
+q_hat = np.quantile(nonconformity, min(q_level,1), method="higher")
+p_test_matrix = expert_forest.predict_proba(X_test_expert)
+pred_sets = p_test_matrix >= (1-q_hat)
+coverage = np.mean(pred_sets[np.arange(len(y_test_expert)), y_test_expert.values])
+set_size = pred_sets.sum(axis=1)
+print({"target_coverage": 1-alpha, "empirical_coverage": coverage, "mean_set_size": set_size.mean(), "q_hat": q_hat})
+
+plt.figure(figsize=(8, 5))
+values, counts = np.unique(set_size, return_counts=True)
+plt.bar(values.astype(str), counts)
+plt.xlabel("Prediction-set size"); plt.ylabel("Test observations")
+plt.title("Conformal prediction-set efficiency")
+plt.tight_layout(); plt.show()
+
+plt.figure(figsize=(9, 5))
+plt.hist(p_test_matrix.max(axis=1)[set_size==1], bins=25, alpha=.7, label="singleton set")
+if np.any(set_size>1):
+    plt.hist(p_test_matrix.max(axis=1)[set_size>1], bins=25, alpha=.7, label="ambiguous set")
+plt.xlabel("Maximum class probability")
+plt.title("Prediction sets communicate uncertainty beyond a hard class label")
+plt.legend(); plt.tight_layout(); plt.show()
+print("Inference: split conformal coverage is marginal under exchangeability. It does not guarantee equal coverage for every subgroup or under distribution shift.")
+'''
+
+
+FINAL_SYNTHESIS = r'''
+# Evidence-to-conclusion synthesis: every strong claim is paired with evidence and a boundary.
+synthesis = pd.DataFrame([
+    ["Association tests", "Features differ across outcome groups", "Mann-Whitney/Chi-square + FDR + effect size", "Association is not causation"],
+    ["Cross-validation", "Model generalizes within sampled conditions", "Repeated/fold performance and uncertainty", "Dependent on split design and stationarity"],
+    ["Calibration", "Probabilities approximate observed frequencies", "Reliability diagram, ECE, Brier score", "May deteriorate after drift"],
+    ["Explainability", "The fitted model relies on specific features and interactions", "Path/ALE/permutation/surrogate diagnostics", "Model behavior is not a causal mechanism"],
+    ["Robustness", "Performance has measured sensitivity to perturbations", "Controlled stress scenarios", "Not a substitute for real drift monitoring"],
+    ["Decision policy", "A threshold is justified for a stated cost ratio", "Decision curves and validation-only selection", "Costs and capacity can change"],
+    ["Uncertainty", "Reported metrics and predictions have sampling/model uncertainty", "Bootstrap intervals, leaf intervals, tree disagreement or conformal sets", "No guarantee under non-exchangeable deployment"],
+], columns=["evidence_domain", "justified_conclusion", "supporting_method", "required_caveat"])
+display(synthesis)
+print("Expert standard: a model conclusion is complete only when it states the evidence, uncertainty, operational meaning and limitation.")
+'''
+
+
+def expert_cells(kind: str):
+    selected = "expert_tree" if kind == "decision_tree" else "expert_forest"
+    title = "Decision Tree" if kind == "decision_tree" else "Random Forest"
+    cells = [
+        md(f"""# Expert Enrichment — {title}: Statistical Evidence, Explainability and Decision Science
+
+This extension turns the notebook from a strong implementation guide into an expert training resource. Every chapter follows the discipline **visual evidence → statistical evidence → model inference → operational justification → limitation**."""),
+        md("""## 1. Independent expert runtime and benchmark ladder
+
+The enrichment is intentionally self-contained. It rebuilds a leakage-safe split and comparable Logistic Regression, Decision Tree and Random Forest pipelines so every advanced inference can be reproduced."""),
+        code(COMMON_SETUP + f"\nselected_expert_model = {selected}\nprint('Selected expert model:', type(selected_expert_model.named_steps['model']).__name__)"),
+        md("""## 2. Statistical feature-evidence map
+
+P-values alone are insufficient. We combine non-parametric or categorical tests, multiplicity correction and effect sizes."""),
+        code(COMMON_STATISTICAL),
+        md("""## 3. Risk estimates with confidence intervals
+
+Observed target rates are estimates. Wilson intervals make uncertainty visible and prevent students from over-interpreting small groups."""),
+        code(COMMON_RATE_INTERVALS),
+    ]
+    if kind == "decision_tree":
+        cells += [
+            md("""## 4. Visual geometry of recursive partitioning
+
+The two-feature surface connects the mathematical split rule, rectangular decision regions and rendered tree."""), code(TREE_SURFACE),
+            md("""## 5. Bootstrap split stability
+
+A single tree structure can look definitive even when small resamples select different root features or thresholds."""), code(TREE_SPLIT_STABILITY),
+            md("""## 6. Cost-complexity pruning with the one-standard-error rule
+
+The one-SE rule selects the simplest model statistically indistinguishable from the best point estimate."""), code(TREE_PRUNING),
+            md("""## 7. Leaf reliability and probability smoothing
+
+Leaves are local samples, not laws. We audit support, event rate, Wilson intervals and Laplace shrinkage."""), code(TREE_LEAF_AUDIT),
+            md("""## 8. Exact local path explanation and counterfactual sensitivity
+
+A Decision Tree permits an exact root-to-leaf explanation. Counterfactual search is added as a sensitivity diagnostic with explicit non-causal boundaries."""), code(TREE_LOCAL),
+        ]
+    else:
+        cells += [
+            md("""## 4. Margin distributions and ensemble disagreement
+
+Forest confidence is better understood through correct-class margins and across-tree dispersion than through one hard prediction."""), code(FOREST_MARGIN),
+            md("""## 5. Forest proximity and learned representation
+
+Leaf co-occurrence creates a model-induced similarity measure that can be inspected as a heatmap and low-dimensional embedding."""), code(FOREST_PROXIMITY),
