@@ -1,1 +1,2 @@
 Trigger the reviewable GitHub Actions build that generates, executes, renders, validates, and commits the exhaustive Decision Tree and Random Forest masterclass notebooks.
+Diagnostic rerun: post any notebook traceback directly to PR #5.
