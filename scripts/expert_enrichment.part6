@@ -1,0 +1,145 @@
+            md("""## 6. Importance stability across refits
+
+A single importance ranking can be accidental. Repeated bootstrap refits reveal magnitude, variance and rank stability."""), code(FOREST_IMPORTANCE_STABILITY),
+            md("""## 7. Accumulated local effects
+
+ALE provides a correlation-aware alternative to naive marginal feature-response plots."""), code(FOREST_ALE),
+            md("""## 8. Surrogate-tree explanation with measured fidelity
+
+A simple surrogate is useful only when its approximation quality is reported."""), code(FOREST_SURROGATE),
+            md("""## 9. Split-conformal prediction sets
+
+Prediction sets communicate uncertainty and empirical coverage beyond a forced hard label."""), code(FOREST_CONFORMAL),
+        ]
+    cells += [
+        md("""## 10. Decision-curve analysis and cost-sensitive threshold justification
+
+A model score becomes a decision only after costs, benefits and capacity are specified."""), code(COMMON_DECISION_ANALYSIS),
+        md("""## 11. Calibration with bootstrap uncertainty
+
+Reliability diagrams are extended with bootstrap intervals and expected calibration error."""), code(COMMON_CALIBRATION),
+        md("""## 12. Paired statistical model comparison
+
+Because models predict the same observations, uncertainty analysis must preserve pairing."""), code(COMMON_MODEL_COMPARISON),
+        md("""## 13. Controlled robustness and shift diagnostics
+
+Missingness, noise, unseen categories and covariate shift expose failure surfaces before deployment."""), code(COMMON_STRESS),
+        md("""## 14. Evidence-to-conclusion synthesis
+
+The final table teaches students how to convert analysis into a defensible expert conclusion rather than a metric dump."""), code(FINAL_SYNTHESIS),
+        md("""## Expert mastery checkpoint
+
+A top-level practitioner should now be able to:
+
+1. separate statistical association, predictive value, probability quality and operational utility;
+2. quantify uncertainty in metrics, leaves, feature importance and local predictions;
+3. distinguish exact explanations, approximations and non-causal sensitivity analyses;
+4. justify regularization and threshold choices with evidence rather than convention;
+5. state clearly what the model supports, what it does not support, and what must be monitored after deployment."""),
+    ]
+    return cells
+
+
+def update_supporting_docs(pkg: Path, kind: str, report: dict):
+    title = "Decision Tree" if kind == "decision_tree" else "Random Forest"
+    readme = pkg / "README.md"
+    original = readme.read_text(encoding="utf-8")
+    section = f"""
+
+## Expert enrichment
+
+The notebook now includes a dedicated expert sequence covering statistical hypothesis tests, false-discovery-rate control, effect sizes, uncertainty intervals, richer visual inference, model-comparison tests, calibration uncertainty, decision-curve analysis, robustness testing and advanced explainability.
+
+Final validated scale:
+
+- {report['total_cells']} total cells
+- {report['code_cells']} executed code cells
+- {report['chapters']} instructional chapters
+- {report['embedded_png_figures']} embedded PNG figures
+- zero execution errors
+
+The notebook remains the primary source of understanding. Every major result is paired with an inference, justification and limitation.
+"""
+    if "## Expert enrichment" in original:
+        original = original.split("## Expert enrichment")[0].rstrip()
+    readme.write_text(original.rstrip() + section, encoding="utf-8")
+
+    notes = pkg / "instructor_notes.md"
+    notes.write_text(notes.read_text(encoding="utf-8") + f"""
+
+## Expert enrichment teaching sequence
+
+- Require students to distinguish significance from effect size and prediction.
+- Ask for one visual inference and one statistical inference per chapter.
+- Require every explanation to name whether it is exact, approximate, global or local.
+- Discuss uncertainty before deployment thresholds.
+- Use the final evidence-to-conclusion matrix as the oral-examination rubric.
+""", encoding="utf-8")
+
+    exercises = pkg / "student_exercises.md"
+    exercises.write_text(exercises.read_text(encoding="utf-8") + f"""
+
+## Expert-level extensions
+
+1. Replace the illustrated false-negative cost ratio and recompute the optimal threshold and decision curve.
+2. Repeat the paired bootstrap comparison with average precision and explain why conclusions may differ from ROC-AUC.
+3. Audit feature-importance stability under a new random seed and quantify rank agreement with Spearman correlation.
+4. Design a subgroup calibration audit with minimum-support rules and bootstrap intervals.
+5. Create a synthetic drift scenario that preserves prevalence but changes conditional feature distributions.
+6. Write an executive conclusion that includes evidence, uncertainty, decision implication and limitation.
+""", encoding="utf-8")
+
+
+def enrich(kind: str):
+    pkg = PACKAGES[kind]
+    nb_name = f"{kind}_classification_masterclass.ipynb"
+    nb_path = pkg / nb_name
+    html_path = pkg / nb_name.replace(".ipynb", ".html")
+    notebook = nbf.read(nb_path, as_version=4)
+    marker = "# Expert Enrichment —"
+    notebook.cells = [cell for cell in notebook.cells if marker not in cell.get("source", "")]
+    notebook.cells.extend(expert_cells(kind))
+    client = NotebookClient(notebook, timeout=1800, kernel_name="python3", resources={"metadata": {"path": str(pkg)}})
+    client.execute()
+    nbf.write(notebook, nb_path)
+    body, _ = HTMLExporter().from_notebook_node(notebook)
+    html_path.write_text(body, encoding="utf-8")
+
+    code_cells = [c for c in notebook.cells if c.cell_type == "code"]
+    errors = [o for c in code_cells for o in c.get("outputs", []) if o.get("output_type") == "error"]
+    figures = sum("image/png" in o.get("data", {}) for c in code_cells for o in c.get("outputs", []))
+    chapters = sum(c.cell_type == "markdown" and c.source.lstrip().startswith("##") for c in notebook.cells)
+    minimum_figures = 52 if kind == "decision_tree" else 58
+    report = {
+        "total_cells": len(notebook.cells),
+        "markdown_cells": sum(c.cell_type == "markdown" for c in notebook.cells),
+        "code_cells": len(code_cells),
+        "chapters": chapters,
+        "unexecuted_code_cells": sum(c.get("execution_count") is None for c in code_cells),
+        "error_outputs": len(errors),
+        "embedded_png_figures": figures,
+        "minimum_code_cells": 38,
+        "minimum_figures": minimum_figures,
+        "minimum_chapters": 42,
+    }
+    report["passes"] = (
+        report["unexecuted_code_cells"] == 0 and report["error_outputs"] == 0
+        and report["code_cells"] >= report["minimum_code_cells"]
+        and report["embedded_png_figures"] >= report["minimum_figures"]
+        and report["chapters"] >= report["minimum_chapters"]
+    )
+    (pkg / "validation_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+    update_supporting_docs(pkg, kind, report)
+    print(kind, json.dumps(report, indent=2))
+    if not report["passes"]:
+        raise RuntimeError(f"{kind} expert validation failed")
+
+
+def main():
+    for kind in PACKAGES:
+        enrich(kind)
+    print("Expert enrichment completed and validated for both tree masterclasses.")
+
+
+if __name__ == "__main__":
+    main()
