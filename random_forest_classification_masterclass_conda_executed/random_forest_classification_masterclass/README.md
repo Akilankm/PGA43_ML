@@ -22,3 +22,17 @@ python scripts/verify_package.py
 - zero execution errors
 
 The data are deterministic and synthetic. This is an educational artifact, not a real lending model.
+
+## Expert enrichment
+
+The notebook now includes a dedicated expert sequence covering statistical hypothesis tests, false-discovery-rate control, effect sizes, uncertainty intervals, richer visual inference, model-comparison tests, calibration uncertainty, decision-curve analysis, robustness testing and advanced explainability.
+
+Final validated scale:
+
+- 90 total cells
+- 41 executed code cells
+- 47 instructional chapters
+- 61 embedded PNG figures
+- zero execution errors
+
+The notebook remains the primary source of understanding. Every major result is paired with an inference, justification and limitation.
