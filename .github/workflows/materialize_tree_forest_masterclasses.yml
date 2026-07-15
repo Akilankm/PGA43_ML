@@ -3,7 +3,7 @@ name: Materialize Decision Tree and Random Forest Masterclasses
 on:
   push:
     branches:
-      - feature/tree-rf-masterclasses
+      - master
     paths:
       - .github/workflows/materialize_tree_forest_masterclasses.yml
   workflow_dispatch:
@@ -22,10 +22,10 @@ jobs:
       PYTHONWARNINGS: ignore
 
     steps:
-      - name: Checkout feature branch
+      - name: Checkout master
         uses: actions/checkout@v4
         with:
-          ref: feature/tree-rf-masterclasses
+          ref: master
 
       - name: Restore deterministic build sources
         run: |
@@ -63,4 +63,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A README.md scripts/build_tree_forest_masterclasses.py scripts/enrich_tree_forest_packages.py decision_tree_classification_masterclass_conda_executed random_forest_classification_masterclass_conda_executed .github/build_payload
           git commit -m "Add end-to-end Decision Tree and Random Forest masterclasses [skip ci]"
-          git push origin HEAD:feature/tree-rf-masterclasses
+          git push origin HEAD:master
