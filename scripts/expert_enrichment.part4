@@ -1,0 +1,137 @@
+plt.barh(show["feature"], show["probability"])
+plt.axvline(base_p, linestyle="--", label=f"original={base_p:.3f}")
+plt.axvline(.5, linestyle=":", label="classification threshold")
+plt.xlabel("Lowest probability reached by one-feature quantile search")
+plt.title("Counterfactual sensitivity is diagnostic, not prescriptive recourse")
+plt.legend(); plt.tight_layout(); plt.show()
+print("Inference: local paths are exact for the fitted tree. Counterfactual searches show model sensitivity, but they do not establish feasibility, ethics or causal effect.")
+'''
+
+
+FOREST_MARGIN = r'''
+# Forest margins and per-tree uncertainty.
+forest_model = expert_forest.named_steps["model"]
+Xt_valid = expert_forest.named_steps["preprocess"].transform(X_valid_expert)
+tree_prob = np.vstack([t.predict_proba(Xt_valid)[:,1] for t in forest_model.estimators_])
+mean_prob = tree_prob.mean(axis=0)
+std_prob = tree_prob.std(axis=0)
+margin = np.where(y_valid_expert.values == 1, 2*mean_prob-1, 1-2*mean_prob)
+plt.figure(figsize=(10, 5))
+plt.hist(margin[y_valid_expert.values==0], bins=35, alpha=.65, label="true class 0")
+plt.hist(margin[y_valid_expert.values==1], bins=35, alpha=.65, label="true class 1")
+plt.axvline(0, linestyle="--")
+plt.xlabel("Correct-class vote margin")
+plt.title("Margin distribution: confidence and error severity")
+plt.legend(); plt.tight_layout(); plt.show()
+
+plt.figure(figsize=(9, 6))
+plt.scatter(mean_prob, std_prob, c=(margin<0), alpha=.65)
+plt.xlabel("Mean forest probability"); plt.ylabel("Across-tree probability standard deviation")
+plt.title("Ensemble disagreement is highest near ambiguous regions")
+plt.tight_layout(); plt.show()
+
+uncertain = pd.DataFrame({"mean_probability": mean_prob, "tree_sd": std_prob, "margin": margin, "target": y_valid_expert.values}, index=X_valid_expert.index)
+display(uncertain.sort_values("tree_sd", ascending=False).head(15).round(4))
+print("Inference: tree disagreement is a model-based uncertainty diagnostic. It is not a calibrated posterior interval and can remain low under shared model bias.")
+'''
+
+
+FOREST_PROXIMITY = r'''
+# Random-forest proximity: observations are similar when they land in the same leaves.
+sample_n = min(180, len(X_valid_expert))
+sample_idx = rng_expert.choice(np.arange(len(X_valid_expert)), sample_n, replace=False)
+X_sample_t = Xt_valid[sample_idx]
+y_sample = y_valid_expert.values[sample_idx]
+leaves = np.vstack([t.apply(X_sample_t) for t in forest_model.estimators_]).T
+proximity = np.mean(leaves[:,None,:] == leaves[None,:,:], axis=2)
+plt.figure(figsize=(8, 7))
+plt.imshow(proximity, aspect="auto")
+plt.colorbar(label="Fraction of trees sharing a leaf")
+plt.title("Forest proximity matrix on a validation sample")
+plt.tight_layout(); plt.show()
+
+embedding = MDS(n_components=2, dissimilarity="precomputed", random_state=RANDOM_STATE, normalized_stress="auto", n_init=2, max_iter=250).fit_transform(1-proximity)
+plt.figure(figsize=(9, 6))
+plt.scatter(embedding[:,0], embedding[:,1], c=y_sample, s=35, alpha=.75)
+plt.xlabel("MDS dimension 1"); plt.ylabel("MDS dimension 2")
+plt.title("Two-dimensional map induced by forest leaf co-occurrence")
+plt.tight_layout(); plt.show()
+print("Inference: proximity reveals the representation learned by the ensemble. Cluster separation supports discriminative structure but does not imply naturally occurring causal groups.")
+'''
+
+
+FOREST_IMPORTANCE_STABILITY = r'''
+# Feature-importance stability across repeated resamples.
+importance_runs = []
+for repeat in range(12):
+    idx = rng_expert.integers(0, len(X_train_expert), len(X_train_expert))
+    m = clone(expert_forest)
+    m.set_params(model__n_estimators=140, model__random_state=RANDOM_STATE+repeat, model__oob_score=False)
+    m.fit(X_train_expert.iloc[idx], y_train_expert.iloc[idx])
+    pi = permutation_importance(m, X_valid_expert, y_valid_expert, scoring="roc_auc", n_repeats=3, random_state=RANDOM_STATE+repeat, n_jobs=1)
+    importance_runs.append(pi.importances_mean)
+imp = pd.DataFrame(importance_runs, columns=X_valid_expert.columns)
+summary = pd.DataFrame({"mean": imp.mean(), "sd": imp.std(), "positive_fraction": (imp>0).mean()}).sort_values("mean", ascending=False)
+display(summary.round(5))
+
+plot = summary.head(14).sort_values("mean")
+plt.figure(figsize=(10, 6))
+plt.errorbar(plot["mean"], plot.index, xerr=plot["sd"], fmt="o", capsize=3)
+plt.axvline(0, linestyle="--")
+plt.xlabel("Permutation importance in ROC-AUC ± resample SD")
+plt.title("Importance magnitude and stability across bootstrap refits")
+plt.tight_layout(); plt.show()
+
+ranks = imp.rank(axis=1, ascending=False)
+rank_summary = pd.DataFrame({"median_rank": ranks.median(), "rank_iqr": ranks.quantile(.75)-ranks.quantile(.25)}).sort_values("median_rank")
+plt.figure(figsize=(10, 6))
+top = rank_summary.head(14).sort_values("median_rank", ascending=False)
+plt.barh(top.index, top["median_rank"], xerr=top["rank_iqr"])
+plt.xlabel("Median importance rank ± rank IQR")
+plt.title("Rank stability is often more informative than one fitted importance value")
+plt.tight_layout(); plt.show()
+print("Inference: features with high mean importance but unstable rank should be described as model-dependent, not universally dominant.")
+'''
+
+
+FOREST_ALE = r'''
+# First-order accumulated local effects (ALE), implemented directly for numeric features.
+def ale_1d(model, X, feature, bins=12):
+    x = X[feature].astype(float)
+    edges = np.unique(np.quantile(x.dropna(), np.linspace(0,1,bins+1)))
+    ids = np.clip(np.digitize(x.fillna(x.median()), edges)-1, 0, len(edges)-2)
+    effects, counts = [], []
+    for b in range(len(edges)-1):
+        mask = ids == b
+        if not np.any(mask):
+            effects.append(0.0); counts.append(0); continue
+        low = X.loc[mask].copy(); high = X.loc[mask].copy()
+        low[feature] = edges[b]; high[feature] = edges[b+1]
+        diff = model.predict_proba(high)[:,1] - model.predict_proba(low)[:,1]
+        effects.append(diff.mean()); counts.append(mask.sum())
+    accumulated = np.cumsum(effects)
+    weights = np.asarray(counts)/max(1,np.sum(counts))
+    accumulated = accumulated - np.sum(accumulated*weights)
+    mids = (edges[:-1]+edges[1:])/2
+    return pd.DataFrame({"mid": mids, "ale": accumulated, "count": counts})
+
+for feature in ["credit_score", "debt_ratio", "interest_rate"]:
+    ale = ale_1d(expert_forest, X_valid_expert, feature)
+    display(ale.round(5))
+    plt.figure(figsize=(9, 4.5))
+    plt.plot(ale["mid"], ale["ale"], marker="o")
+    plt.axhline(0, linestyle="--")
+    plt.xlabel(feature); plt.ylabel("Centered accumulated local effect")
+    plt.title(f"ALE: local average effect of {feature} on forest probability")
+    plt.tight_layout(); plt.show()
+print("Inference: ALE reduces extrapolation across correlated feature regions compared with naive marginal plots, but it remains descriptive of the fitted model rather than causal.")
+'''
+
+
+FOREST_SURROGATE = r'''
+# Global surrogate tree: compress forest behavior and measure fidelity explicitly.
+forest_train_p = expert_forest.predict_proba(X_train_expert)[:,1]
+forest_valid_p = expert_forest.predict_proba(X_valid_expert)[:,1]
+Xt_train = expert_forest.named_steps["preprocess"].transform(X_train_expert)
+Xt_valid2 = expert_forest.named_steps["preprocess"].transform(X_valid_expert)
+feature_names = expert_forest.named_steps["preprocess"].get_feature_names_out()
