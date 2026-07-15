@@ -1,0 +1,17 @@
+column,type,role,description
+customer_id,string,identifier,Synthetic identifier excluded from modeling
+age,integer,predictor,Age
+annual_income,float,predictor,Synthetic income
+employment_years,float,predictor,Tenure
+credit_score,integer,predictor,Synthetic score
+debt_ratio,float,predictor,Debt ratio
+missed_payments_12m,integer,predictor,Missed payments
+loan_amount,float,predictor,Requested amount
+interest_rate,float,predictor,Synthetic rate
+prior_default,integer,predictor,Prior default
+home_ownership,category,predictor,Ownership
+purpose,category,predictor,Purpose
+region,category,predictor,Region
+channel,category,predictor,Channel
+application_month,integer,predictor,Month
+default,integer,target,Synthetic target

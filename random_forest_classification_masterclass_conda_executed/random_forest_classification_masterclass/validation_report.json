@@ -1,0 +1,11 @@
+{
+  "notebook": "random_forest_classification_masterclass.ipynb",
+  "total_cells": 25,
+  "code_cells": 12,
+  "executed_code_cells": 12,
+  "error_outputs": 0,
+  "embedded_png_figures": 11,
+  "minimum_figures": 10,
+  "dataset_rows": 2400,
+  "passed": true
+}

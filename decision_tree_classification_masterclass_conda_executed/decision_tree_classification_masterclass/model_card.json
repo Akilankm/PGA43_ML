@@ -1,0 +1,20 @@
+{
+  "algorithm": "Pruned DecisionTreeClassifier",
+  "intended_use": "education",
+  "prohibited_use": "real credit decisions",
+  "test_metrics": {
+    "model": "decision_tree_final",
+    "roc_auc": 0.8833429783950619,
+    "average_precision": 0.46874663817402784,
+    "balanced_accuracy": 0.8043981481481481,
+    "f1": 0.43243243243243246,
+    "mcc": 0.40441490194886853,
+    "log_loss": 0.4284261646392925,
+    "brier": 0.14840084509212773
+  },
+  "limits": [
+    "synthetic data",
+    "high variance",
+    "importance is noncausal"
+  ]
+}
