@@ -64,6 +64,8 @@ Path:
 
 Covers additive stage-wise modelling, functional gradient descent, squared-error and binary log-loss derivations, manual boosting rounds, from-scratch regression and classification implementations, scikit-learn Gradient Boosting models, regularisation, early stopping, cross-validation, residual and calibration diagnostics, threshold-cost engineering, permutation importance, partial dependence, failure modes, and production monitoring.
 
+The package validator enforces executed code cells, zero notebook errors, embedded visual outputs, committed datasets, a static HTML render, and required teaching assets.
+
 [Open the Gradient Boosting masterclass README](gradient_boosting_masterclass_conda_executed/gradient_boosting_masterclass/README.md)
 
 ## Reproducibility
