@@ -1,0 +1,17 @@
+name: pga43-gradient-boosting
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - numpy>=2.1,<2.4
+  - pandas>=2.2,<2.4
+  - scipy>=1.14,<1.18
+  - scikit-learn>=1.6,<1.9
+  - matplotlib>=3.9,<3.11
+  - joblib>=1.4,<1.6
+  - jupyterlab>=4.2,<5
+  - ipykernel>=6.29,<7
+  - nbformat>=5.10,<6
+  - nbclient>=0.10,<0.11
+  - nbconvert>=7.16,<8
+  - pip
