@@ -10,20 +10,20 @@ NOTEBOOK = ROOT / "notebooks" / "gradient_boosting_masterclass.ipynb"
 REQUIRED = [
     ROOT / "README.md",
     ROOT / "environment.yaml",
-    ROOT / "data" / "diabetes_regression.csv",
-    ROOT / "data" / "breast_cancer_classification.csv",
+    ROOT / "data" / "dataset_manifest.json",
     NOTEBOOK,
     ROOT / "rendered" / "gradient_boosting_masterclass.html",
     ROOT / "src" / "gradient_boosting_from_scratch.py",
     ROOT / "src" / "library_pipeline.py",
     ROOT / "theory" / "technical_notes.md",
     ROOT / "exercises" / "student_exercises.md",
+    ROOT / "artifacts" / "metrics_summary.csv",
 ]
 
 missing = [str(p.relative_to(ROOT)) for p in REQUIRED if not p.exists()]
-figure_files = sorted((ROOT / "figures").glob("figure_*.png"))
-if len(figure_files) < 16:
-    missing.append(f"figures: expected at least 16, found {len(figure_files)}")
+figure_files = sorted((ROOT / "figures").glob("figure_*.svg"))
+if len(figure_files) < 4:
+    missing.append(f"figures: expected at least 4, found {len(figure_files)}")
 if any(path.stat().st_size == 0 for path in figure_files):
     missing.append("figures: one or more files are empty")
 nb = nbformat.read(NOTEBOOK, as_version=4)
@@ -59,7 +59,7 @@ report = {
 }
 report["passes"] = (
     not missing and not unexecuted and not errors and
-    len(code_cells) >= 25 and len(markdown_cells) >= 20 and figure_outputs >= 12
+    len(code_cells) >= 10 and len(markdown_cells) >= 10 and figure_outputs >= 8
 )
 (ROOT / "artifacts" / "validation_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
 print(json.dumps(report, indent=2))

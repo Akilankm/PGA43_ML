@@ -1,11 +1,11 @@
 {
-  "total_cells": 62,
-  "markdown_cells": 26,
-  "code_cells": 36,
+  "total_cells": 21,
+  "markdown_cells": 11,
+  "code_cells": 10,
   "unexecuted_code_cells": [],
   "error_outputs": [],
-  "rendered_figure_outputs": 16,
+  "rendered_figure_outputs": 8,
   "missing_required_files": [],
-  "html_bytes": 83792,
+  "html_bytes": 3649,
   "passes": true
 }

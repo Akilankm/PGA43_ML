@@ -1,6 +1,6 @@
 # Gradient Boosting Masterclass — From Functional Gradients to Production Diagnostics
 
-This package is the canonical Gradient Boosting learning path in `PGA43_ML`. It mirrors the repository's linear, logistic, decision-tree, and random-forest masterclasses: one executed notebook is the primary source of understanding, the data are committed locally, and a rendered HTML companion is included.
+This package is the canonical Gradient Boosting learning path in `PGA43_ML`. It mirrors the repository's linear, logistic, decision-tree, and random-forest masterclasses: one executed notebook is the primary source of understanding, deterministic dataset contracts are recorded locally, and a rendered HTML companion is included.
 
 ## What the notebook teaches
 
@@ -23,10 +23,11 @@ gradient_boosting_masterclass/
 ├── README.md
 ├── environment.yaml
 ├── data/
-│   ├── diabetes_regression.csv
-│   └── breast_cancer_classification.csv
+│   └── dataset_manifest.json
 ├── notebooks/
 │   └── gradient_boosting_masterclass.ipynb
+├── figures/
+│   └── figure_01.svg ... figure_04.svg
 ├── rendered/
 │   └── gradient_boosting_masterclass.html
 ├── src/
@@ -58,4 +59,4 @@ python scripts/verify_package.py
 
 ## Dataset policy
 
-The committed CSV files are deterministic snapshots of scikit-learn's diabetes regression and breast-cancer classification teaching datasets. They are used strictly for education and benchmarking, not clinical decision-making.
+The notebook loads deterministic copies of scikit-learn's bundled diabetes regression and breast-cancer classification datasets. `data/dataset_manifest.json` records the loaders, shapes, targets, and expected CSV hashes. They are used strictly for education and benchmarking, not clinical decision-making.

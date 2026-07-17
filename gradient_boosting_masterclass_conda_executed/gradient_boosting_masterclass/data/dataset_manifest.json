@@ -1,0 +1,21 @@
+{
+  "policy": "Datasets are bundled with scikit-learn and loaded deterministically by the executed notebook.",
+  "datasets": [
+    {
+      "loader": "sklearn.datasets.load_diabetes",
+      "task": "regression",
+      "rows": 442,
+      "predictors": 10,
+      "target": "disease_progression",
+      "csv_sha256": "873847a8eac8c81a958753abbf13a1718e1c7bf37b84da3cc3aba8892e344b94"
+    },
+    {
+      "loader": "sklearn.datasets.load_breast_cancer",
+      "task": "binary_classification",
+      "rows": 569,
+      "predictors": 30,
+      "target": "is_benign",
+      "csv_sha256": "e689703ca48c331abee8d7cb9a9b10a581ec3e138bf6518878a2c849196c297f"
+    }
+  ]
+}
